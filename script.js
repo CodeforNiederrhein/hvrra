@@ -23,7 +23,7 @@ var verspaetungPromise = fetch('data/verspaetung.csv')
     }).data
   })
 
-var lines = ['RE1', 'RE2', 'RE3', 'RE4', 'RE5', 'RE6', 'RE10']
+var lines = ['RB27', 'RB31', 'RB32', 'RB33', 'RB35', 'RB36', 'RB37', 'RB38', 'RB40', 'RE1', 'RE2', 'RE3', 'RE4', 'RE5', 'RE6', 'RE7', 'RE8', 'RE10', 'RE11', 'RE13', 'RE14', 'RE16']
 var linesPromises = Promise.all(
   lines.map(function (line) {
     var filename = 'lines/' + line.toLowerCase() + '.geojson'
@@ -42,7 +42,7 @@ Promise.all([verspaetungPromise, linesPromises])
     var minVerspaetung = Math.min.apply(null, verspaetungenValues)
     var maxVerspaetung = Math.max.apply(null, verspaetungenValues)
 
-    var scale = chroma.scale(['green', 'yellow', 'red']).domain([minVerspaetung, maxVerspaetung])
+    var scale = chroma.scale(['yellow', 'red']).domain([minVerspaetung, maxVerspaetung])
 
     for (var i = 0; i < lines.length; i++) {
       console.log(lines[i])
@@ -58,9 +58,14 @@ Promise.all([verspaetungPromise, linesPromises])
           weight: 5,
           opacity: 1
         },
-        filter: function (feature) {
+        filter: function filter (feature) {
           return feature.geometry.type === 'LineString'
+        },
+        onEachFeature: function onEachFeature (feature, layer) {
+          // does this feature have a property named popupContent?
+            layer.bindPopup('Linie ' + ref + '<br>Ø Verspätung ' + verspaetung.Verspaetung + ' Minuten')
         }
+
       }).addTo(map)
     }
   }, function (e) {
