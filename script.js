@@ -6,12 +6,6 @@ L.tileLayer('http://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Load Lines
-var re10FetchPromise = fetch('lines/re10.geojson')
-  .then(fetchToJson)
-var re1FetchPromise = fetch('lines/re1.geojson')
-  .then(fetchToJson)
-
 
 var verspaetungPromise = fetch('data/verspaetung.csv')
   .then(function (response) {
@@ -23,20 +17,15 @@ var verspaetungPromise = fetch('data/verspaetung.csv')
     }).data
   })
 
-var lines = ['RB27', 'RB31', 'RB32', 'RB33', 'RB35', 'RB36', 'RB37', 'RB38', 'RB40', 'RE1', 'RE2', 'RE3', 'RE4', 'RE5', 'RE6', 'RE7', 'RE8', 'RE10', 'RE11', 'RE13', 'RE14', 'RE16']
-var linesPromises = Promise.all(
-  lines.map(function (line) {
-    var filename = 'lines/' + line.toLowerCase() + '.geojson'
-    return fetch(filename)
-      .then(fetchToJson)
-    })
-  )
+var linesPromises = fetch('lines/lines.topojson')
+  .then(fetchToJson)
 
 Promise.all([verspaetungPromise, linesPromises])
   .then(function (fetchs) {
     var verspaetungen = fetchs[0]
+    var validLines = findLines(verspaetungen)
     
-    var linesData = fetchs[1]
+    var lines = fetchs[1]
     
     var verspaetungenValues = verspaetungen.map(function (item) { return Number(item.Verspaetung) })
     var minVerspaetung = Math.min.apply(null, verspaetungenValues)
@@ -44,9 +33,13 @@ Promise.all([verspaetungPromise, linesPromises])
 
     var scale = chroma.scale(['lightgray', 'yellow', 'orange', 'red']).domain([minVerspaetung, maxVerspaetung], 7, 'k-means')
 
-    for (var i = 0; i < lines.length; i++) {
-      console.log(lines[i])
-      addLine(lines[i], linesData[i], 2015)
+    for (var i in lines.objects) {
+      var linename = i.toUpperCase()
+      if (validLines.indexOf(linename) !== -1) {
+        var line = topojson.feature(lines, lines.objects[i])
+        console.log('looking for', linename)
+        addLine(linename, line, 2015)
+      }
     }
 
     function addLine (ref, geojson, year) {
@@ -77,6 +70,9 @@ Promise.all([verspaetungPromise, linesPromises])
     console.error(e)
   })
 
+function findLines (rows) {
+  return rows.map(function (row) { return row.Linie })
+}
 
 function findRow (line, rows, year) {
   for(var i = 0; i < rows.length; i++) {
