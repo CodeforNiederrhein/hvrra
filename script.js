@@ -42,7 +42,7 @@ Promise.all([verspaetungPromise, linesPromises])
     var minVerspaetung = Math.min.apply(null, verspaetungenValues)
     var maxVerspaetung = Math.max.apply(null, verspaetungenValues)
 
-    var scale = chroma.scale(['yellow', 'red']).domain([minVerspaetung, maxVerspaetung])
+    var scale = chroma.scale(['lightgray', 'yellow', 'orange', 'red']).domain([minVerspaetung, maxVerspaetung], 7, 'k-means')
 
     for (var i = 0; i < lines.length; i++) {
       console.log(lines[i])
