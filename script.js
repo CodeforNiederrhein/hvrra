@@ -1,6 +1,6 @@
 var map = new L.map('map')
-
-map.fitBounds([[50.3276,5.8664],[52.5325,9.4623]])
+// 5.8777,51.0828,7.8113,51.9307
+map.fitBounds([[51.0828,5.8777],[51.9307,7.8113]])
 
 L.tileLayer('http://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
